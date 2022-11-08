@@ -8,29 +8,59 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#define SCREEN_WIDTH 600
+#define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
+
+#define MOVE_STEP 5
 
 SDL_Window *window;
 SDL_Renderer *render;
 
-void mainLoop()
+SDL_Rect redRect = {0, 0, 200, 200};
+
+void QuitGame(void)
+{
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    exit(0);
+}
+
+void MainLoop(void)
 {
     SDL_Event event;
-    SDL_WaitEvent(&event);
-
-    if (event.type == SDL_QUIT)
+    while (SDL_PollEvent(&event))
     {
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-
-        exit(0);
+        switch (event.type)
+        {
+        case SDL_QUIT:
+            QuitGame();
+            break;
+        case SDL_KEYDOWN:
+            switch (event.key.keysym.sym)
+            {
+            case SDLK_LEFT:
+                redRect.x -= MOVE_STEP;
+                break;
+            case SDLK_DOWN:
+                redRect.y += MOVE_STEP;
+                break;
+            case SDLK_UP:
+                redRect.y -= MOVE_STEP;
+                break;
+            case SDLK_RIGHT:
+                redRect.x += MOVE_STEP;
+                break;
+            }
+            break;
+        }
     }
 
+    SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(render);
 
-    SDL_SetRenderDrawColor(render, rand() % 255, rand() % 255, rand() % 255, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawRect(render, NULL);
+    SDL_SetRenderDrawColor(render, 0xff, 0x00, 0x00, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(render, &redRect);
 
     SDL_RenderPresent(render);
 }
@@ -53,7 +83,7 @@ int main()
         return 1;
     }
 
-    render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (render == NULL)
     {
         fprintf(stderr, "SDL_CreateRenderer error: %s", SDL_GetError());
@@ -64,11 +94,11 @@ int main()
     }
 
 #ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(mainLoop, 0, 1);
+    emscripten_set_main_loop(MainLoop, 0, 1);
 #else
     while (1)
     {
-        mainLoop();
+        MainLoop();
     }
 #endif
 

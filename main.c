@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -16,10 +17,15 @@
 SDL_Window *window;
 SDL_Renderer *render;
 
+SDL_Texture *redRectTexture;
 SDL_Rect redRect = {0, 0, 200, 200};
+
+Uint8 backgroundLight = 0;
 
 void QuitGame(void)
 {
+    SDL_DestroyTexture(redRectTexture);
+    SDL_DestroyRenderer(render);
     SDL_DestroyWindow(window);
     SDL_Quit();
 
@@ -51,16 +57,18 @@ void MainLoop(void)
             case SDLK_RIGHT:
                 redRect.x += MOVE_STEP;
                 break;
+            case SDLK_g:
+                backgroundLight = rand() & 0xff;
+                break;
             }
             break;
         }
     }
 
-    SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor(render, backgroundLight, backgroundLight, backgroundLight, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(render);
 
-    SDL_SetRenderDrawColor(render, 0xff, 0x00, 0x00, SDL_ALPHA_OPAQUE);
-    SDL_RenderFillRect(render, &redRect);
+    SDL_RenderCopy(render, redRectTexture, NULL, &redRect);
 
     SDL_RenderPresent(render);
 }
@@ -92,6 +100,8 @@ int main()
         SDL_Quit();
         return 1;
     }
+
+    redRectTexture = IMG_LoadTexture(render, "assets/redRect.png");
 
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(MainLoop, 0, 1);

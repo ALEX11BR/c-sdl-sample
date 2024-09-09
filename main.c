@@ -2,12 +2,15 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_timer.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
+
+#define FPS 60
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -108,7 +111,15 @@ int main()
 #else
     while (1)
     {
+        Uint64 startTicks, endTicks;
+
+        startTicks = SDL_GetTicks64();
         MainLoop();
+        endTicks = SDL_GetTicks64();
+
+        if (endTicks - startTicks < 1000 / FPS) {
+            SDL_Delay((1000 / FPS) - (endTicks - startTicks));
+        }
     }
 #endif
 

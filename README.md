@@ -1,6 +1,6 @@
 # A sample C SDL2 application
 
-- Compile with `make` for Linux (make sure you have installed SDL2, SDL2_image).
+- Compile with `make` for Linux or Windows-MinGW-w64 (make sure you have installed SDL2, SDL2_image).
 
 - Compile with `emmake make` for web using emscripten.
 

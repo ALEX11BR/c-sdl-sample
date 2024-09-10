@@ -76,7 +76,7 @@ void MainLoop(void)
     SDL_RenderPresent(render);
 }
 
-int main()
+int main(int argc, char **argv)
 {
     srand(time(NULL));
 

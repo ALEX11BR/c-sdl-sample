@@ -1,2 +1,6 @@
-build/
+/.vs
+/build
+/out
+/vcpkg_installed
+
 *.o
